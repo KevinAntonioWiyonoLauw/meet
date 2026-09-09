@@ -1,6 +1,7 @@
 services:
   meet:
     image: ghcr.io/kevinantoniowiyonolauw/meet:latest
+    pull_policy: always
     container_name: meet
     restart: unless-stopped
     environment:
