@@ -30,7 +30,19 @@ CREATE TABLE IF NOT EXISTS responses (
   PRIMARY KEY (event_id, name)
 );
 CREATE INDEX IF NOT EXISTS idx_responses_event ON responses(event_id);
+CREATE TABLE IF NOT EXISTS admin_users (
+  email TEXT PRIMARY KEY,
+  password_hash TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
 `);
+  const admin = db.prepare("SELECT email FROM admin_users WHERE email = ?").get("keviniogt02@gmail.com");
+  if (!admin) {
+    db.prepare("INSERT INTO admin_users (email, password_hash) VALUES (?, ?)").run(
+      "keviniogt02@gmail.com",
+      "250ad69721a8adf79bb1aa87ed6e0dd7:2c537c3cae0858c7f46cad081ca1b32b127028894366b00f45f2d8b2d146ca561062c9440de77d4ce5847f57e842ec70c00d0a80e26a67c284f976664d3dafcb"
+    );
+  }
   _db = db;
   return db;
 }
