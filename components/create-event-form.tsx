@@ -103,7 +103,7 @@ export function CreateEventForm() {
 
           <Separator />
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="space-y-2">
               <Label>From</Label>
               <select className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={start} onChange={(e) => setStart(e.target.value)}>
