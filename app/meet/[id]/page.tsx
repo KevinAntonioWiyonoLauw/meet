@@ -220,13 +220,13 @@ export default function EventPage() {
   const namesFor = (slot: string) => ev.responses.filter((r) => r.slots.includes(slot)).map((r) => r.name);
 
   return (
-    <main className="min-h-screen px-4 py-8 flex flex-col items-center">
+    <main className="min-h-screen w-full max-w-full overflow-x-hidden px-3 py-5 sm:px-4 sm:py-8 flex flex-col items-center">
       <div className="w-full max-w-6xl space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">{ev.title}</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              {ev.responses.length} {ev.responses.length === 1 ? "person" : "people"} voted · link: meet.kevinio.my.id/meet/{ev.id}
+            <h1 className="max-w-full break-words text-xl sm:text-2xl font-bold tracking-tight">{ev.title}</h1>
+            <p className="max-w-full break-all text-xs sm:text-sm text-muted-foreground mt-1">
+              {ev.responses.length} {ev.responses.length === 1 ? "person" : "people"} voted · meet.kevinio.my.id/meet/{ev.id}
             </p>
           </div>
           <Button variant="outline" onClick={share}>
@@ -270,8 +270,8 @@ export default function EventPage() {
           </div>
         )}
 
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-          <Card>
+        <div className="grid w-full min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+          <Card className="min-w-0 overflow-hidden">
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Your availability</CardTitle>
               <CardDescription>Click or drag cells. Hover cell to see who picked it.</CardDescription>
@@ -287,7 +287,7 @@ export default function EventPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="min-w-0 overflow-hidden">
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Group availability</CardTitle>
               <CardDescription>All selections combined. Darker cells mean better overlap.</CardDescription>
