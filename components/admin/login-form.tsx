@@ -9,22 +9,27 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export function LoginForm() {
-  const [email, setEmail] = useState("keviniogt02@gmail.com");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
     setError("");
-    const result = await signIn("credentials", { email, password, redirect: false, callbackUrl: "/admin" });
-    if (result?.error) {
-      setError("Email atau password salah.");
+    try {
+      const result = await signIn("credentials", { email, password, redirect: false, callbackUrl: "/admin" });
+      if (!result || result.error) {
+        setError("Email atau password salah.");
+        setLoading(false);
+        return;
+      }
+      window.location.assign("/admin");
+    } catch {
+      setError("Login gagal. Coba lagi.");
       setLoading(false);
-      return;
     }
-    window.location.href = "/admin";
   }
 
   return (

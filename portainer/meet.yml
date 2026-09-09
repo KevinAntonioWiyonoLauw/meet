@@ -9,6 +9,8 @@ services:
       - DB_PATH=/data/meet.db
       - AUTH_SECRET=RYesA43/UK2BYZE5OCq0Frp0oZIKAoN07dsGcotSDWF5p2IgLRVQQerOntS2pi+
       - AUTH_TRUST_HOST=true
+      - ADMIN_EMAIL=keviniogt02@gmail.com
+      - ADMIN_PASSWORD_HASH=250ad69721a8adf79bb1aa87ed6e0dd7:2c537c3cae0858c7f46cad081ca1b32b127028894366b00f45f2d8b2d146ca561062c9440de77d4ce5847f57e842ec70c00d0a80e26a67c284f976664d3dafcb
     volumes:
       - meet-data:/data
     networks:

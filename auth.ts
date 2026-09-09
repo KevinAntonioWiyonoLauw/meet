@@ -1,6 +1,5 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { getDb } from "@/lib/db";
 import { verifyPassword } from "@/lib/password";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -17,11 +16,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const email = typeof credentials?.email === "string" ? credentials.email.trim().toLowerCase() : "";
         const password = typeof credentials?.password === "string" ? credentials.password : "";
         if (!email || !password) return null;
-        const user = getDb().prepare("SELECT email, password_hash FROM admin_users WHERE email = ?").get(email) as
-          | { email: string; password_hash: string }
-          | undefined;
-        if (!user || !verifyPassword(password, user.password_hash)) return null;
-        return { id: user.email, email: user.email, name: "Kevin" };
+        const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+        const adminHash = process.env.ADMIN_PASSWORD_HASH;
+        if (!adminEmail || !adminHash || email !== adminEmail || !verifyPassword(password, adminHash)) return null;
+        return { id: adminEmail, email: adminEmail, name: "Admin" };
       },
     }),
   ],
