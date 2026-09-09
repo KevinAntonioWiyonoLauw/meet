@@ -39,10 +39,3 @@ jobs:
           tags: |
             ${{ env.IMAGE }}:latest
             ${{ env.IMAGE }}:${{ github.sha }}
-
-      - name: Trigger Portainer redeploy
-        run: |
-          curl -sf -X POST \
-            "http://192.168.18.164:9000/api/stacks/6/start?endpointId=3" \
-            -H "Authorization: Bearer ${{ secrets.PORTAINER_TOKEN }}" \
-            --data "{}" || echo "skip: no token"

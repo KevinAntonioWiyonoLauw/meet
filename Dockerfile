@@ -20,12 +20,14 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV DB_PATH=/data/meet.db
 
-COPY --from=build /app/public ./public
-COPY --from=build --chown=oven:oven /app/.next/standalone ./
-COPY --from=build --chown=oven:oven /app/.next/static ./.next/static
+# mkdir as root, world-writable so the named volume is writable by the app user
+RUN mkdir -p /data && chmod 777 /data
 
-RUN mkdir -p /data && chown oven:oven /data
-USER oven
+COPY --from=build --chown=1000:1000 /app/public ./public
+COPY --from=build --chown=1000:1000 /app/.next/standalone ./
+COPY --from=build --chown=1000:1000 /app/.next/static ./.next/static
+
+USER 1000
 
 EXPOSE 3000
 CMD ["bun", "server.js"]
