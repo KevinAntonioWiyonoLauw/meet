@@ -205,7 +205,9 @@ export default function EventPage() {
     slots: [...mine],
   } : null;
 
-  const cols = `64px repeat(${ev.dates.length}, 1fr) 52px`;
+  const cols = `64px repeat(${ev.dates.length}, 1fr)`;
+  const summaryCols = `64px repeat(${ev.dates.length}, 1fr)`;
+  const namesFor = (slot: string) => ev.responses.filter((r) => r.slots.includes(slot)).map((r) => r.name);
 
   return (
     <main className="min-h-screen px-4 py-8 flex flex-col items-center">
@@ -258,102 +260,39 @@ export default function EventPage() {
           </div>
         )}
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base">Click or drag cells to mark yourself available</CardTitle>
-            <CardDescription>
-              Your picks have a dark outline. Deeper green = more people free. Right column = everyone free per time.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="select-none">
-            <div className="overflow-x-auto">
-              <div className="min-w-[640px]">
-                {/* horizontal scroll hint */}
-                <div className="sm:hidden text-xs text-muted-foreground pb-2 flex items-center gap-1">
-                  <span className="inline-block h-px w-8 bg-muted-foreground/40 rounded-full" />
-                  Scroll sideways to see all days
-                </div>
-                {/* header row: dates + total */}
-                <div className="grid" style={{ gridTemplateColumns: cols }}>
-                  <div className="sticky left-0 z-20 bg-card" />
-                  {ev.dates.map((d) => (
-                    <div key={d} className="text-center pb-2">
-                      <div className="text-xs text-muted-foreground">{weekday(d)}</div>
-                      <div className="text-sm font-semibold">{d.slice(5)}</div>
-                    </div>
-                  ))}
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger className="sticky right-0 z-20 bg-card text-center pb-2">
-                        <div className="text-xs font-semibold text-muted-foreground">All</div>
-                        <div className="text-sm font-bold">Σ</div>
-                      </TooltipTrigger>
-                      <TooltipContent side="top">
-                        Total people free that time (all days combined)
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-                {/* time rows */}
-                <div className="space-y-0.5">
-                  {times.map((t) => (
-                    <div key={t} className="grid" style={{ gridTemplateColumns: cols }}>
-                      <div className="text-xs text-muted-foreground pr-2 pt-1 text-right sticky left-0 z-10 bg-card flex items-center justify-end pt-0">
-                        {t}
-                      </div>
-                      {ev.dates.map((d) => {
-                        const slot = `${d}T${t}`;
-                        const count = ev.counts[slot] || 0;
-                        const me = mine.has(slot);
-                        return (
-                          <TooltipProvider key={slot}>
-                            <Tooltip>
-                              <TooltipTrigger
-                                draggable={false}
-                                className={`h-9 sm:h-7 rounded-sm transition-colors ${cellClass(count, ev.max, me)} ${savedAs ? "cursor-pointer" : "cursor-not-allowed opacity-70"}`}
-                                aria-label={`${d} ${t} — ${count} free`}
-                                onPointerDown={(e) => {
-                                  e.preventDefault();
-                                  if (savedAs && !busy) startDrag(slot, mine.has(slot));
-                                }}
-                                onPointerEnter={() => {
-                                  if (savedAs && !busy) dragOver(slot);
-                                }}
-                              >
-                                <span className="sr-only">{`${d} ${t} — ${count} free`}</span>
-                              </TooltipTrigger>
-                              <TooltipContent side="top">
-                                {count ? `${count} ${count === 1 ? "person" : "people"} free` : "No one free yet"} — {t}
-                                {me && " (you)"}
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        );
-                      })}
-                      {/* total per row */}
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger
-                            draggable={false}
-                            className={`h-9 sm:h-7 rounded-sm sticky right-0 z-10 bg-card flex items-center justify-center text-xs font-bold tabular-nums transition-colors ${rowTotals[t] === maxRowTotal && rowTotals[t] > 0 ? "text-emerald-700 ring-1 ring-emerald-500" : "text-muted-foreground"}`}
-                            aria-label={`Total free at ${t}: ${rowTotals[t]}`}
-                          >
-                            <span className={`h-6 sm:h-5 w-8 sm:w-7 rounded-sm flex items-center justify-center ${GREEN[idx(rowTotals[t], maxRowTotal)]}`}>
-                              {rowTotals[t] > 0 ? rowTotals[t] : "·"}
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent side="top">
-                            {rowTotals[t]} free at {t} across all days
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Your availability</CardTitle>
+              <CardDescription>Click or drag cells. Hover cell to see who picked it.</CardDescription>
+            </CardHeader>
+            <CardContent className="select-none">
+              <div className="overflow-x-auto"><div className="min-w-[520px]">
+                <div className="grid" style={{ gridTemplateColumns: cols }}><div className="sticky left-0 z-20 bg-card" />{ev.dates.map((d) => <div key={d} className="text-center pb-2"><div className="text-xs text-muted-foreground">{weekday(d)}</div><div className="text-sm font-semibold">{d.slice(5)}</div></div>)}</div>
+                <div className="space-y-0.5">{times.map((t) => <div key={t} className="grid" style={{ gridTemplateColumns: cols }}>
+                  <div className="text-xs text-muted-foreground pr-2 text-right sticky left-0 z-10 bg-card flex items-center justify-end">{t}</div>
+                  {ev.dates.map((d) => { const slot = `${d}T${t}`; const count = ev.counts[slot] || 0; const me = mine.has(slot); const names = namesFor(slot); return <TooltipProvider key={slot}><Tooltip><TooltipTrigger draggable={false} className={`h-9 sm:h-7 rounded-sm transition-colors ${cellClass(count, ev.max, me)} ${savedAs ? "cursor-pointer" : "cursor-not-allowed opacity-70"}`} aria-label={`${d} ${t}`} onPointerDown={(e) => { e.preventDefault(); if (savedAs && !busy) startDrag(slot, me); }} onPointerEnter={() => { if (savedAs && !busy) dragOver(slot); }}><span className="sr-only">{slot}</span></TooltipTrigger><TooltipContent side="top">{names.length ? names.join(", ") : "Nobody yet"}{me && " (you)"}</TooltipContent></Tooltip></TooltipProvider>; })}
+                </div>)}</div>
+              </div></div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Group availability</CardTitle>
+              <CardDescription>All selections combined. Darker cells mean better overlap.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto"><div className="min-w-[520px]">
+                <div className="grid" style={{ gridTemplateColumns: summaryCols }}><div className="sticky left-0 z-20 bg-card" />{ev.dates.map((d) => <div key={d} className="text-center pb-2"><div className="text-xs text-muted-foreground">{weekday(d)}</div><div className="text-sm font-semibold">{d.slice(5)}</div></div>)}</div>
+                <div className="space-y-0.5">{times.map((t) => <div key={t} className="grid" style={{ gridTemplateColumns: summaryCols }}>
+                  <div className="text-xs text-muted-foreground pr-2 text-right sticky left-0 z-10 bg-card flex items-center justify-end">{t}</div>
+                  {ev.dates.map((d) => { const slot = `${d}T${t}`; const count = ev.counts[slot] || 0; const names = namesFor(slot); return <TooltipProvider key={slot}><Tooltip><TooltipTrigger className={`h-9 sm:h-7 rounded-sm flex items-center justify-center text-xs font-bold tabular-nums ${cellClass(count, ev.max, false)}`}>{count || "·"}</TooltipTrigger><TooltipContent side="top">{names.length ? `${count}: ${names.join(", ")}` : "Nobody available"}</TooltipContent></Tooltip></TooltipProvider>; })}
+                </div>)}</div>
+              </div></div>
+            </CardContent>
+          </Card>
+        </div>
 
         {ev.responses.length > 0 && (
           <Card>
