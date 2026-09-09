@@ -55,6 +55,12 @@ function cellClass(count: number, max: number, me: boolean): string {
     : `${base} ${GREEN_HOVER[Math.min(GREEN_HOVER.length - 1, idx(count, max) + 1)]}`;
 }
 
+function personalCellClass(me: boolean): string {
+  return me
+    ? "bg-primary ring-2 ring-primary ring-offset-1 ring-offset-background cursor-pointer"
+    : "bg-muted/50 hover:bg-muted/80 cursor-pointer";
+}
+
 export default function EventPage() {
   const { id } = useParams<{ id: string }>();
   const [ev, setEv] = useState<(MeetEvent & { responses: MeetResponse[]; counts: Counts; max: number }) | null>(null);
@@ -180,6 +186,10 @@ export default function EventPage() {
       return;
     }
     localStorage.setItem(`meet:${id}`, n);
+    const existing = ev?.responses.find((r) => r.name === n);
+    const selected = new Set(existing?.slots || []);
+    mineRef.current = selected;
+    setMine(selected);
     setSavedAs(n);
     setName("");
   }
@@ -271,7 +281,7 @@ export default function EventPage() {
                 <div className="grid" style={{ gridTemplateColumns: cols }}><div className="sticky left-0 z-20 bg-card" />{ev.dates.map((d) => <div key={d} className="text-center pb-2"><div className="text-xs text-muted-foreground">{weekday(d)}</div><div className="text-sm font-semibold">{d.slice(5)}</div></div>)}</div>
                 <div className="space-y-0.5">{times.map((t) => <div key={t} className="grid" style={{ gridTemplateColumns: cols }}>
                   <div className="text-xs text-muted-foreground pr-2 text-right sticky left-0 z-10 bg-card flex items-center justify-end">{t}</div>
-                  {ev.dates.map((d) => { const slot = `${d}T${t}`; const count = ev.counts[slot] || 0; const me = mine.has(slot); const names = namesFor(slot); return <TooltipProvider key={slot}><Tooltip><TooltipTrigger draggable={false} className={`h-9 sm:h-7 rounded-sm transition-colors ${cellClass(count, ev.max, me)} ${savedAs ? "cursor-pointer" : "cursor-not-allowed opacity-70"}`} aria-label={`${d} ${t}`} onPointerDown={(e) => { e.preventDefault(); if (savedAs && !busy) startDrag(slot, me); }} onPointerEnter={() => { if (savedAs && !busy) dragOver(slot); }}><span className="sr-only">{slot}</span></TooltipTrigger><TooltipContent side="top">{names.length ? names.join(", ") : "Nobody yet"}{me && " (you)"}</TooltipContent></Tooltip></TooltipProvider>; })}
+                  {ev.dates.map((d) => { const slot = `${d}T${t}`; const me = mine.has(slot); return <TooltipProvider key={slot}><Tooltip><TooltipTrigger draggable={false} className={`h-9 sm:h-7 rounded-sm transition-colors ${personalCellClass(me)} ${!savedAs ? "cursor-not-allowed opacity-70" : ""}`} aria-label={`${d} ${t}`} onPointerDown={(e) => { e.preventDefault(); if (savedAs && !busy) startDrag(slot, me); }} onPointerEnter={() => { if (savedAs && !busy) dragOver(slot); }}><span className="sr-only">{slot}</span></TooltipTrigger><TooltipContent side="top">{me ? "You selected this time" : "Available to select"}</TooltipContent></Tooltip></TooltipProvider>; })}
                 </div>)}</div>
               </div></div>
             </CardContent>
