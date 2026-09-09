@@ -3,7 +3,7 @@ services:
     image: ghcr.io/kevinantoniowiyonolauw/meet:latest
     container_name: meet
     restart: unless-stopped
-    env:
+    environment:
       - NODE_ENV=production
       - DB_PATH=/data/meet.db
     volumes:
